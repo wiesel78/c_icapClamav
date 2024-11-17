@@ -1,0 +1,11 @@
+services: 
+  icap-clamav:
+    container_name: icap-clamav
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "1344:1344"
+    volumes:
+      - ./etc/c-icap.conf:/opt/c-icap/etc/c-icap.conf
+

@@ -1,63 +1,85 @@
-# Build a docker image for clamav/clamd
-
 FROM alpine:latest
 
-LABEL maintainer "nkapashi"
-
-ENV cicapBaseVersion="0.5.2" cicapModuleVersion="0.4.5"
+# Set the version of c-icap and c-icap-modules you wish to use
+ENV cicapVersion="0.6.3" cicapModuleVersion="0.5.7"
 
 WORKDIR /
 
-# 1. create needed directories
-RUN mkdir -p /tmp/install && mkdir -p /opt/c-icap && mkdir -p /var/log/c-icap/ && mkdir -p /run/clamav && \
-	cd /tmp/install && \
+RUN mkdir -p /tmp/install && \
+    mkdir -p /opt/c-icap && \
+    mkdir -p /var/log/c-icap && \
+    mkdir -p /run/clamav && \
+    cd /tmp/install 
 
-# 2. install needed packages
-	apk --update --no-cache add \
-		bzip2 \
-		bzip2-dev \ 
-		zlib \
-		zlib-dev \
-		curl \
-		tar \
-		gcc \
-		make \
-		g++ \
-		clamav \ 
-		clamav-libunrar && \
+RUN apk --update --no-cache add \
+        bzip2 \
+        bzip2-dev \
+        zlib \
+        zlib-dev \
+        curl \
+        tar \
+        gcc \
+        make \
+        g++ \
+        clamav \
+        clamav-libunrar \
+        libatomic \
+        git \
+        autoconf \
+        automake \
+        libtool && \
+    git config --global --add advice.detachedHead false
 
-# 3. download c_icap, c_icap modules and install them 
-	curl --silent --location --remote-name "http://downloads.sourceforge.net/project/c-icap/c-icap/0.5.x/c_icap-${cicapBaseVersion}.tar.gz" && \
-	curl --silent --location --remote-name "https://sourceforge.net/projects/c-icap/files/c-icap-modules/0.4.x/c_icap_modules-${cicapModuleVersion}.tar.gz" && \
-	tar -xzf "c_icap-${cicapBaseVersion}.tar.gz" && tar -xzf "c_icap_modules-${cicapModuleVersion}.tar.gz" && cd c_icap-${cicapBaseVersion} && \
-	./configure --quiet --prefix=/opt/c-icap --enable-large-files && make && make install && \
-	cd ../c_icap_modules-${cicapModuleVersion}/ && ./configure --quiet --with-c-icap=/opt/c-icap --prefix=/opt/c-icap && \
-	make && make install && \
+# Download and build c-icap
+RUN git clone --branch C_ICAP_0.6.3 --depth 1 https://github.com/c-icap/c-icap-server.git && \
+    cd c-icap-server && \
+    autoreconf -i && \
+    ./configure --quiet --prefix=/opt/c-icap --enable-large-files && \
+    make && \
+    make install && \
+    cd /tmp/install
 
-# 4. configure clamav and initialize anti-virus database
-	chown clamav:clamav /run/clamav && \
-	sed -i 's/^#Foreground .*$/Foreground true/g' /etc/clamav/clamd.conf && \
-	sed -i 's/^#Foreground .*$/Foreground true/g' /etc/clamav/freshclam.conf && \
-	sed -i 's/#MaxAttempts .*$/MaxAttempts 5/g' /etc/clamav/freshclam.conf && \
-	sed -i 's/#DatabaseMirror .*$/DatabaseMirror db.US.clamav.net/g' /etc/clamav/freshclam.conf && \
+# Download and build c-icap-modules
+RUN git clone --branch C_ICAP_MODULES_0.5.7 --depth 1 https://github.com/c-icap/c-icap-modules.git && \
+    cd c-icap-modules && \
+    autoreconf -i && \
+    ./configure --quiet --with-c-icap=/opt/c-icap --prefix=/opt/c-icap && \
+    make && \
+    make install && \
+    cd /tmp/install
 
-# 5. clean up
-	cd / && rm -rf /tmp/install && \
-	apk del \
-		bzip2 \
-		bzip2-dev \ 
-		zlib \
-		zlib-dev \
-		curl \
-		tar \
-		gcc \
-		make \
-		g++ && \
-		rm -rf /opt/c-icap/etc/*.default
+# configure clamav
+RUN chown clamav:clamav /run/clamav && \
+    sed -i 's/^#Foreground .*$/Foreground yes/g' /etc/clamav/clamd.conf && \
+    sed -i 's/^#Foreground .*$/Foreground yes/g' /etc/clamav/freshclam.conf && \
+    sed -i 's/#MaxAttempts .*$/MaxAttempts 5/g' /etc/clamav/freshclam.conf && \
+    sed -i 's/#DatabaseMirror .*$/DatabaseMirror db.US.clamav.net/g' /etc/clamav/freshclam.conf 
 
-# 6. add configuration file and antivrus database file
-		
-ADD ./etc /opt/c-icap/etc
-ADD ./opt /opt
-COPY custom_vir_sig.ndb /var/lib/clamav/
-CMD chmod +x /opt/start.sh; sync && /opt/start.sh && /bin/sh
+RUN cd && \
+    rm -rf /tmp/install && \
+    apk del \
+        bzip2 \
+        bzip2-dev \
+        zlib \
+        zlib-dev \
+        curl \
+        tar \
+        gcc \
+        make \
+        g++ \
+        git \
+        autoconf \
+        automake \
+        libtool && \
+    rm -rf /opt/c-icap/etc/*.default
+
+COPY etc /opt/c-icap/etc
+COPY opt/ /opt
+COPY custom_vir_sig.ndb /var/lib/clamav/custom_vir_sig.ndb
+RUN chmod +x /opt/start.sh
+
+EXPOSE 1344
+
+# CMD ["/opt/start.sh && /bin/sh -c '/bin/tail -f /dev/null'"]
+CMD ["/bin/sh", "-c", "/opt/start.sh && tail -f /dev/null"]
+
