@@ -39,7 +39,7 @@ RUN git clone --branch C_ICAP_0.6.3 --depth 1 https://github.com/c-icap/c-icap-s
     make install && \
     cd /tmp/install
 
-# Download and build c-icap-modules
+# # Download and build c-icap-modules
 RUN git clone --branch C_ICAP_MODULES_0.5.7 --depth 1 https://github.com/c-icap/c-icap-modules.git && \
     cd c-icap-modules && \
     autoreconf -i && \
@@ -48,7 +48,7 @@ RUN git clone --branch C_ICAP_MODULES_0.5.7 --depth 1 https://github.com/c-icap/
     make install && \
     cd /tmp/install
 
-# configure clamav
+# # configure clamav
 RUN chown clamav:clamav /run/clamav && \
     sed -i 's/^#Foreground .*$/Foreground yes/g' /etc/clamav/clamd.conf && \
     sed -i 's/^#Foreground .*$/Foreground yes/g' /etc/clamav/freshclam.conf && \
@@ -73,13 +73,12 @@ RUN cd && \
         libtool && \
     rm -rf /opt/c-icap/etc/*.default
 
-COPY etc /opt/c-icap/etc
-COPY opt/ /opt
+COPY ./etc /opt/c-icap/etc
+COPY ./opt/ /opt
 COPY custom_vir_sig.ndb /var/lib/clamav/custom_vir_sig.ndb
 RUN chmod +x /opt/start.sh
 
 EXPOSE 1344
 
-# CMD ["/opt/start.sh && /bin/sh -c '/bin/tail -f /dev/null'"]
 CMD ["/bin/sh", "-c", "/opt/start.sh && tail -f /dev/null"]
 
