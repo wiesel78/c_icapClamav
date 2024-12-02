@@ -75,7 +75,7 @@ RUN cd && \
 
 COPY ./etc /opt/c-icap/etc
 COPY ./opt/ /opt
-COPY custom_vir_sig.ndb /var/lib/clamav/custom_vir_sig.ndb
+COPY ./signatures/custom_vir_sig.ndb /var/lib/clamav/custom_vir_sig.ndb
 RUN chmod +x /opt/start.sh
 
 EXPOSE 1344

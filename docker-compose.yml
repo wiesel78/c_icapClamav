@@ -6,10 +6,5 @@ services:
       dockerfile: Dockerfile
     ports:
       - "1344:1344"
-    # volumes:
-    #   - ./etc/c-icap.conf:/opt/c-icap/etc/c-icap.conf
-    #   - ./etc/clamd_mod.conf:/opt/c-icap/etc/clamd_mod.conf
-    #   - ./etc/srv_content_filtering.conf:/opt/c-icap/etc/srv_content_filtering.conf
-    #   - ./etc/virus_scan.conf:/opt/c-icap/etc/virus_scan.conf
-    #   - ./opt/start.sh:/opt/start.sh
-    #   - ./opt/testicapFile.dat:/opt/testicapFile.dat
+    volumes:
+      - ./signatures:/var/lib/clamav
