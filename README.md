@@ -76,6 +76,8 @@ testsignature=$(xxd -p /tmp/infected-file.txt)
 echo "Trojan.Win32.TestInfectedFile.A:0:*:${testsignature}" >> /var/lib/clamav/custom_vir_sig.ndb
 ```
 
+After that we have to wait a bit for the clamav to reload the database.
+
 The ndb row format, defined in
 [clamav signatures](https://docs.clamav.net/manual/Signatures/ExtendedSignatures.html)
 , is:
@@ -88,4 +90,10 @@ Test the signature with clamscan:
 
 ```bash
 clamscan /tmp/infected-file.txt
+```
+
+Test the signature with icap-client:
+
+```bash
+/opt/c-icap/bin/c-icap-client -i 127.0.0.1 -p 1344 -s "srv_clamav" -f /tmp/infected-file.txt
 ```
