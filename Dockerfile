@@ -27,7 +27,9 @@ RUN apk --update --no-cache add \
         git \
         autoconf \
         automake \
-        libtool && \
+        libtool \
+        vim \
+        bash && \
     git config --global --add advice.detachedHead false
 
 # Download and build c-icap

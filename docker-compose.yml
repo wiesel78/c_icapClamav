@@ -8,3 +8,6 @@ services:
       - "1344:1344"
     volumes:
       - ./signatures:/var/lib/clamav
+    cap_add:
+      - CAP_NET_RAW
+      - CAP_NET_ADMIN
