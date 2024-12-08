@@ -1,0 +1,8 @@
+REQMOD icap://localhost:1344/srv_clamav ICAP/1.0
+Host: localhost:1344
+Allow: 204
+Encapsulated: req-hdr=0, null-body=35
+
+GET / HTTP/1.1
+Host: localhost
+

@@ -1,0 +1,13 @@
+REQMOD icap://localhost:1344/srv_clamav ICAP/1.0
+Host: localhost
+Encapsulated: req-hdr=0, req-body=82
+
+POST / HTTP/1.1
+Host: localhost
+Pragma: no-cache
+Transfer-Encoding: chunked
+
+9
+i am bad
+0; ieof
+
