@@ -11,6 +11,10 @@ request = (
     f"\r\n"
 )
 
+print("Request:")
+print(request)
+
+print("Response:")
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.connect((host, port))
     s.sendall(request.encode('utf-8'))
