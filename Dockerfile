@@ -66,6 +66,4 @@ RUN chmod +x /opt/start.sh
 
 EXPOSE 1344
 
-# CMD ["/bin/bash", "-c", "/opt/start.sh && tail -f /dev/null"]
-CMD tail -f /dev/null
-
+CMD ["/bin/bash", "-c", "/opt/start.sh && tail -f /dev/null"]
