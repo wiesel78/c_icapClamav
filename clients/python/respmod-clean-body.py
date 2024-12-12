@@ -24,13 +24,13 @@ http_header = (
     "\r\n"
 )
 
+http_header_length = len(http_header.encode('utf-8'))
 request = (
     f"RESPMOD icap://{host}:{port}/{service} ICAP/1.0\r\n"
     f"Host: {host}\r\n"
     f"Allow: 204\r\n"
     f"Preview: {content_len}\r\n"
-    f"Encapsulated: res-hdr=0, res-body={
-        len(http_header.encode('utf-8'))}\r\n"
+    f"Encapsulated: res-hdr=0, res-body={http_header_length}\r\n"
     f"\r\n"
     f"{http_header}"
     f"{http_body}"

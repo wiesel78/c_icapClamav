@@ -10,12 +10,12 @@ http_request = (
     "\r\n"
 )
 
+http_request_length = len(http_request.encode('utf-8'))
 request = (
     f"REQMOD icap://{host}:{port}/{service} ICAP/1.0\r\n"
     f"Host: {host}:{port}\r\n"
     f"Allow: 204\r\n"
-    f"Encapsulated: req-hdr=0, null-body={
-        len(http_request.encode('utf-8'))}\r\n"
+    f"Encapsulated: req-hdr=0, null-body={http_request_length}\r\n"
     f"\r\n"
     f"{http_request}"
 )
